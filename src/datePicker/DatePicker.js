@@ -1,5 +1,5 @@
-import React, {Component} from 'react';
-import {View} from 'react-native';
+import React, { Component } from 'react';
+import { View } from 'react-native';
 import DatePickerList from './DatePickerList';
 import PropTypes from 'prop-types';
 import styles from './style';
@@ -14,7 +14,7 @@ class DatePicker extends Component {
     }
 
     _onValueChange = (key, selectedIndex) => {
-        const {years, months, days} = this.state;
+        const { years, months, days } = this.state;
         const _getSelectedIndex = dates => selectedIndex < 0 ? 0 : Math.min(selectedIndex, dates.length - 1);
         switch (key) {
             case Constants.DATE_KEY_TYPE.YEAR:
@@ -22,6 +22,10 @@ class DatePicker extends Component {
                 this.setState({
                     selectedYear: years[yearIndex].date,
                     months: Constants.selectDatePickerData(yearIndex, years),
+                }, () => {
+                    const _selectedDate = `${this.state.selectedYear}-${this.state.selectedMonth}-${this.state.selectedDay}`;
+                    const selectedDate = Constants.toStandardStringWith(_selectedDate, this.props.monthDisplayMode);
+                    this.props.confirm(selectedDate);
                 });
                 break;
             case Constants.DATE_KEY_TYPE.MONTH:
@@ -29,11 +33,19 @@ class DatePicker extends Component {
                 this.setState({
                     selectedMonth: months[monthIndex].date,
                     days: Constants.selectDatePickerData(monthIndex, months),
+                }, () => {
+                    const _selectedDate = `${this.state.selectedYear}-${this.state.selectedMonth}-${this.state.selectedDay}`;
+                    const selectedDate = Constants.toStandardStringWith(_selectedDate, this.props.monthDisplayMode);
+                    this.props.confirm(selectedDate);
                 });
                 break;
             case Constants.DATE_KEY_TYPE.DAY:
                 const dayIndex = _getSelectedIndex(days);
-                this.setState({selectedDay: days[dayIndex].date});
+                this.setState({ selectedDay: days[dayIndex].date }, () => {
+                    const _selectedDate = `${this.state.selectedYear}-${this.state.selectedMonth}-${this.state.selectedDay}`;
+                    const selectedDate = Constants.toStandardStringWith(_selectedDate, this.props.monthDisplayMode);
+                    this.props.confirm(selectedDate);
+                });
                 break;
             default:
                 break;
@@ -94,7 +106,7 @@ class DatePicker extends Component {
         const dataSource = Constants.getDatePickerData(type, years, months, days);
 
         const _toolBar = (<ToolBar
-            style={[{backgroundColor}, toolBarStyle]}
+            style={[{ backgroundColor }, toolBarStyle]}
             cancelStyle={toolBarCancelStyle}
             confirmStyle={toolBarConfirmStyle}
             titleStyle={titleStyle}
@@ -114,10 +126,10 @@ class DatePicker extends Component {
         return (
             <>
                 {showToolBar && toolBarPosition === Constants.DEFAULT_TOOL_BAR_POSITION.TOP && _toolBar}
-                <View style={[styles.datePickerContainer, {backgroundColor}]}>
+                <View style={[styles.datePickerContainer, { backgroundColor }]}>
                     {
                         dataSource.map((item, index) => {
-                            const {key, data} = item;
+                            const { key, data } = item;
                             const initialScrollIndex = key === Constants.DATE_KEY_TYPE.YEAR ? defaultYearIndex : (key === Constants.DATE_KEY_TYPE.MONTH ? defaultMonthIndex : defaultDayIndex);
                             return (<DatePickerList
                                 key={index}
